@@ -1,0 +1,538 @@
+{
+  "name": "Worker Alquilar Departamento v11",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "e4e74f80-e597-434b-8f5c-24df54ac2962",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d8c52138-b21b-4d1f-84a5-513bf129e451",
+              "leftValue": "={{ $json.governance.juez_aprobado }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f7bc7549-692f-4ff2-8a17-9fdbceca367c",
+      "name": "¿Aprobado por AI-Judge?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        16,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1VZi2sz8app-JlnJHVHY3xucvlIWZUH8gk2L-qd6wtNc",
+          "mode": "list",
+          "cachedResultName": "Agenda",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VZi2sz8app-JlnJHVHY3xucvlIWZUH8gk2L-qd6wtNc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "alquilar",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VZi2sz8app-JlnJHVHY3xucvlIWZUH8gk2L-qd6wtNc/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.traceId }}",
+            "dni": "={{ $json.extracted_data.DNI }}",
+            "nombre": "={{ $json.extracted_data.Nombre }}",
+            "fecha": "={{ $json.extracted_data.Fecha }}",
+            "hora": "={{ $json.extracted_data.Hora }}",
+            "presupuesto": "={{ $json.extracted_data.Presupuesto }}",
+            "intencion": "={{ $json.extracted_data.Intencion }}",
+            "traceid": "={{ $json.traceId }}",
+            "observaciones_juez": "={{ $json.governance.observaciones }}",
+            "score_confianza": "={{ $json.governance.score_confianza }}"
+          },
+          "matchingColumns": [
+            "traceid"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dni",
+              "displayName": "dni",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "hora",
+              "displayName": "hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "presupuesto",
+              "displayName": "presupuesto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "intencion",
+              "displayName": "intencion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "traceid",
+              "displayName": "traceid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "score_confianza",
+              "displayName": "score_confianza",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "observaciones_juez",
+              "displayName": "observaciones_juez",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "5f429aac-9c72-4ac8-84a9-2a9c0dd38610",
+      "name": "Google Sheets: Añadir Fila Alquileres",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        240,
+        80
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nDEKTRXx7cPBZIFL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "U0BTKKZBK8S",
+          "mode": "list",
+          "cachedResultName": "cuenta make (@cuenta.make.ls)"
+        },
+        "text": "=En la fecha  {{ $now }} tenemos un agendado de {{ $workflow.name }}. Revisar\n🔎 TraceID: {{ $('Execute Workflow Trigger').item.json.traceId }}",
+        "otherOptions": {}
+      },
+      "id": "321ab69f-e213-48ad-acdb-d04f2dfa434f",
+      "name": "Send a message",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        480,
+        80
+      ],
+      "webhookId": "79417818-b0a7-413b-b865-baf5fd9811d7",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "D32l5Y5hF7qsZV9x",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1bM-imhFpFa0XXkX_94FbP5dYmjhjUZAvvBJyQ-tsLv8",
+          "mode": "list",
+          "cachedResultName": "Log de rechazos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bM-imhFpFa0XXkX_94FbP5dYmjhjUZAvvBJyQ-tsLv8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 257575876,
+          "mode": "list",
+          "cachedResultName": "alquilar",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bM-imhFpFa0XXkX_94FbP5dYmjhjUZAvvBJyQ-tsLv8/edit#gid=257575876"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.traceId }}",
+            "traceid": "={{ $json.traceId }}",
+            "dni": "={{ $json.extracted_data.DNI }}",
+            "nombre": "={{ $json.extracted_data.Nombre }}",
+            "fecha": "={{ $json.extracted_data.Fecha }}",
+            "hora": "={{ $json.extracted_data.Hora }}",
+            "presupuesto": "={{ $json.extracted_data.Presupuesto }}",
+            "intencion": "={{ $json.extracted_data.Intencion }}",
+            "dinero": "={{ $json.extracted_data.Dinero }}",
+            "score_confianza": "={{ $json.governance.score_confianza }}",
+            "observaciones_juez": "={{ $json.governance.observaciones }}"
+          },
+          "matchingColumns": [
+            "traceid"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dni",
+              "displayName": "dni",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "hora",
+              "displayName": "hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "presupuesto",
+              "displayName": "presupuesto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intencion",
+              "displayName": "intencion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "dinero",
+              "displayName": "dinero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "traceid",
+              "displayName": "traceid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "score_confianza",
+              "displayName": "score_confianza",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "observaciones_juez",
+              "displayName": "observaciones_juez",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "5fadf79d-2a9f-4c06-8f45-3df62b6bd4bd",
+      "name": "Agrega log de rechazos",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        128,
+        304
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nDEKTRXx7cPBZIFL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "U0BTKKZBK8S",
+          "mode": "list",
+          "cachedResultName": "cuenta make (@cuenta.make.ls)"
+        },
+        "text": "=Error flujo alquilar {{ $json.traceid ?? $('Execute Workflow Trigger').item.json.traceId }}",
+        "otherOptions": {}
+      },
+      "id": "9e6a1691-233e-4689-ac6a-0a4743c9384d",
+      "name": "Informa error flujo alquilar",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        480,
+        304
+      ],
+      "webhookId": "56850ca5-3444-4b43-b43a-700037fe35e7",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "D32l5Y5hF7qsZV9x",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Sumamos info en la agenda y avisamos en slack",
+        "height": 80,
+        "width": 432
+      },
+      "id": "233d71ab-c138-46b1-884d-3271353520e1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Worker Alquilar",
+        "height": 80,
+        "width": 1024,
+        "color": 5
+      },
+      "id": "18c135f0-3174-4ffd-a6bd-cd5eacc42a64",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Sumamos info para auditoria y gobernanza y ademas comunicamos al equipo",
+        "height": 80,
+        "width": 512,
+        "color": 2
+      },
+      "id": "dd5eb4b1-336b-414b-9841-09b773bef079",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        128,
+        512
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "¿Aprobado por AI-Judge?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Aprobado por AI-Judge?": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets: Añadir Fila Alquileres",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agrega log de rechazos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets: Añadir Fila Alquileres": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agrega log de rechazos": {
+      "main": [
+        [
+          {
+            "node": "Informa error flujo alquilar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "9b6a6005-9f5e-4ccf-906c-49d1d2db7762",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e3cf23be175e6380ae1e05ee5d9cd219a5993747dd2f77d08fa2f9552a78fe58"
+  },
+  "nodeGroups": [],
+  "id": "wMycXQhLAxN7Btio",
+  "tags": []
+}

@@ -1,0 +1,628 @@
+{
+  "name": "Juez y Auditoríav11",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "traceId"
+            },
+            {
+              "name": "snippet"
+            },
+            {
+              "name": "subject"
+            },
+            {
+              "name": "timestamp_inicio",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "id": "5afefd87-f131-47d6-853c-092d9b712c3a",
+      "name": "Entrada desde Orquestador",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Actúa como un asistente de una inmobiliaria. Analiza el siguiente correo y extrae la información en formato JSON estricto.\n\nLas claves del JSON deben ser exactamente estas:\n- \"DNI\": (string o null si no aparece)\n- \"Nombre\": (string o null)\n- \"Fecha\": (string en formato YYYY-MM-DD o null)\n- \"Hora\": (string en formato HH:MM o null)\n- \"Presupuesto\": (solo el número, sin símbolos, o null)\n- \"Email\": (string o null si no aparece)\n- \"Telefono\": (string o null si no aparece)\n- \"Intencion\": (string, debe ser EXACTAMENTE una de estas 4 palabras: 'Alquilar', 'Vender', 'Ver', 'Consulta').\n- \"Confianza\": (número decimal entre 0.0 y 1.0 que indique la certeza del análisis)\n- \"Razonamiento_Extractor\": (breve explicación de 1 frase de por qué elegiste esta intención)\n\nCorreo a analizar:\n{{ $json.snippet }}",
+        "batching": {}
+      },
+      "id": "fbd56600-8163-407a-a773-09f9a6482d36",
+      "name": "detecta solicitud",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        224,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "model": "groq/compound-mini",
+        "options": {}
+      },
+      "id": "c3367739-4858-4054-8e05-7643a13a79b1",
+      "name": "Groq Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        224,
+        352
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "F3Dx1Stan8p1NzFk",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\nfor (const item of $input.all()) {\n  const j = item.json || {};\n  const aiOutput = j.text ?? j.output ?? (j.message && j.message.content) ?? j.response ?? '';\n  try {\n    const cleanJson = String(aiOutput).replace(/```json\\n?|```\\n?/g, '').trim();\n    results.push({ json: { parsed_data: JSON.parse(cleanJson) } });\n  } catch (error) {\n    results.push({ json: { parsed_data: { error: 'No se pudo parsear el JSON de la IA', raw: String(aiOutput) } } });\n  }\n}\nreturn results;"
+      },
+      "id": "9c78f042-5d90-4e47-838e-cae61a6e68e8",
+      "name": "Parsear JSON IA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        576,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Solicitud ORIGINAL del cliente:\n{{ $('Entrada desde Orquestador').item.json.snippet }}\n\nEXTRACCIÓN DEL MODELO PRIMARIO:\n{{ JSON.stringify($json.parsed_data) }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Actúa como un Auditor de Calidad e Inteligencia Inmobiliaria (AI-as-a-Judge). Tu tarea es evaluar el análisis realizado por un modelo primario sobre una solicitud de un cliente.\n\nREGLAS DE AUDITORÍA:\n1. Verifica si la 'Intencion' asignada ('Alquilar', 'Vender', 'Ver', 'Consulta') corresponde de forma lógica y estricta al correo original.\n2. Detecta alucinaciones, datos faltantes o incongruencias.\n3. Si la intención del modelo primario es correcta, apruébala. Si es incorrecta o dudosa, corrígela.\n\nPUNTAJA CADA DIMENSIÓN DE 1 (muy malo) A 5 (excelente) según esta RÚBRICA JSON Schema:\n- exactitud_factual: ¿los datos extraídos coinciden exactamente con el correo, sin alucinaciones?\n- relevancia: ¿la extracción se centra en lo que el cliente realmente pidió?\n- completitud: ¿se capturaron todos los datos presentes en el correo?\n\nRESPONDE ÚNICAMENTE EN FORMATO JSON ESTRICTO (sin texto adicional, sin markdown):\n{\n  \"aprobado\": (true o false),\n  \"intencion_final\": (string: 'Alquilar', 'Vender', 'Ver' o 'Consulta'),\n  \"score_confianza\": (float entre 0.0 y 1.0),\n  \"rubrica\": {\n    \"exactitud_factual\": (entero 1-5),\n    \"relevancia\": (entero 1-5),\n    \"completitud\": (entero 1-5)\n  },\n  \"observaciones_juez\": (string con la justificación de tu dictamen)\n}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "id": "6ba76f48-cc8e-4199-8518-987e2c36888b",
+      "name": "AI-as-a-Judge Supervisor",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        784,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "model": "groq/compound-mini",
+        "options": {}
+      },
+      "id": "22d7211d-f39f-4cb6-9417-81ac6b35bd3c",
+      "name": "Groq Chat Model Juez",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        784,
+        336
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "F3Dx1Stan8p1NzFk",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\nfor (const item of $input.all()) {\n  const j = item.json || {};\n  const aiOutput = j.text ?? j.output ?? (j.message && j.message.content) ?? j.response ?? '';\n  try {\n    const cleanJson = String(aiOutput).replace(/```json\\n?|```\\n?/g, '').trim();\n    results.push({ json: { judge_review: JSON.parse(cleanJson) } });\n  } catch (error) {\n    // Fallback de seguridad si el juez falla: congela autonomía\n    results.push({\n      json: {\n        judge_review: {\n          aprobado: false,\n          intencion_final: 'Consulta',\n          score_confianza: 0.0,\n          rubrica: { exactitud_factual: 1, relevancia: 1, completitud: 1 },\n          observaciones_juez: 'Error de parseo en el Juez AI. Se congela la autonomía.'\n        }\n      }\n    });\n  }\n}\nreturn results;"
+      },
+      "id": "087ac6a6-b34c-4d3b-91fe-3b5b10c6f279",
+      "name": "Parsear JSON Judge",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1136,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"traceId\": {{ JSON.stringify($('Entrada desde Orquestador').item.json.traceId) }},\n  \"nombre\": {{ JSON.stringify($('Parsear JSON IA').item.json.parsed_data.Nombre ?? null) }},\n  \"consulta\": {{ JSON.stringify($('Entrada desde Orquestador').item.json.snippet ?? null) }},\n  \"extracted_data\": {{ JSON.stringify($('Parsear JSON IA').item.json.parsed_data) }},\n  \"governance\": {\n    \"juez_aprobado\": {{ $('Parsear JSON Judge').item.json.judge_review.aprobado ?? false }},\n    \"score_confianza\": {{ $('Parsear JSON Judge').item.json.judge_review.score_confianza ?? 0 }},\n    \"rubrica\": {{ JSON.stringify($('Parsear JSON Judge').item.json.judge_review.rubrica ?? {}) }},\n    \"observaciones\": {{ JSON.stringify($('Parsear JSON Judge').item.json.judge_review.observaciones_juez ?? null) }}\n  },\n  \"intencion_validada\": {{ JSON.stringify($('Parsear JSON Judge').item.json.judge_review.intencion_final ?? 'Consulta') }}\n}",
+        "options": {}
+      },
+      "id": "fbce315b-b0a9-46d5-a0b1-9318e8ebb892",
+      "name": "Limpiar Payload Masivo",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1360,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "umbral-exactitud",
+              "leftValue": "={{ $json.governance.rubrica.exactitud_factual ?? 1 }}",
+              "rightValue": 4,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "umbral-aprobado",
+              "leftValue": "={{ $json.governance.juez_aprobado ?? false }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b2aeb570-bfe5-4a8e-937b-038721774c42",
+      "name": "Umbral de Autonomía",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1600,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "gov-1",
+              "name": "traceId",
+              "value": "={{ $json.traceId }}",
+              "type": "string"
+            },
+            {
+              "id": "gov-2",
+              "name": "intencion_primaria",
+              "value": "={{ $json.extracted_data.Intencion ?? 'desconocida' }}",
+              "type": "string"
+            },
+            {
+              "id": "gov-3",
+              "name": "intencion_juez",
+              "value": "={{ $json.intencion_validada ?? 'desconocida' }}",
+              "type": "string"
+            },
+            {
+              "id": "gov-4",
+              "name": "score_confianza",
+              "value": "={{ $json.governance.score_confianza ?? 0 }}",
+              "type": "number"
+            },
+            {
+              "id": "gov-5",
+              "name": "juez_aprobado",
+              "value": "={{ $json.governance.juez_aprobado ?? false }}",
+              "type": "boolean"
+            },
+            {
+              "id": "gov-8",
+              "name": "exactitud_factual",
+              "value": "={{ $json.governance.rubrica.exactitud_factual ?? 0 }}",
+              "type": "number"
+            },
+            {
+              "id": "gov-9",
+              "name": "relevancia",
+              "value": "={{ $json.governance.rubrica.relevancia ?? 0 }}",
+              "type": "number"
+            },
+            {
+              "id": "gov-10",
+              "name": "completitud",
+              "value": "={{ $json.governance.rubrica.completitud ?? 0 }}",
+              "type": "number"
+            },
+            {
+              "id": "gov-11",
+              "name": "resultado",
+              "value": "={{ ($json.governance.juez_aprobado && ($json.governance.rubrica.exactitud_factual ?? 0) >= 4) ? 'autonomo' : 'revision_humana' }}",
+              "type": "string"
+            },
+            {
+              "id": "gov-6",
+              "name": "latencia_ms",
+              "value": "={{ Date.now() - ($('Entrada desde Orquestador').item.json.timestamp_inicio ?? Date.now()) }}",
+              "type": "number"
+            },
+            {
+              "id": "gov-7",
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f3aa67d4-b406-45d4-a111-f5e5df7ec322",
+      "name": "Preparar registro de gobernanza",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1824,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1gEGE3nMlve2labNOpauYZb8QB0zd0MSgA_2DYyt3-CM",
+          "mode": "list",
+          "cachedResultName": "Registro de gobernanza"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "registros"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "traceId"
+          ],
+          "schema": [
+            {
+              "id": "traceId",
+              "displayName": "traceId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intencion_primaria",
+              "displayName": "intencion_primaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intencion_juez",
+              "displayName": "intencion_juez",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "score_confianza",
+              "displayName": "score_confianza",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "juez_aprobado",
+              "displayName": "juez_aprobado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "exactitud_factual",
+              "displayName": "exactitud_factual",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "relevancia",
+              "displayName": "relevancia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "completitud",
+              "displayName": "completitud",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "resultado",
+              "displayName": "resultado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "latencia_ms",
+              "displayName": "latencia_ms",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "7dc04c3b-1954-40be-9cf9-489898cad745",
+      "name": "Registro de gobernanza",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2048,
+        16
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nDEKTRXx7cPBZIFL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "mode": "id",
+          "value": "U0BTKKZBK8S"
+        },
+        "text": "=Revisión humana requerida: la consulta necesita revisión. Intención: {{ $json.intencion_juez }}, confianza: {{ $json.score_confianza }}.",
+        "otherOptions": {}
+      },
+      "id": "21f3ec38-a080-4f47-a826-6c24a680926f",
+      "name": "Cola de Aprobación Humana",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        2080,
+        432
+      ],
+      "webhookId": "568bb401-c83c-4139-a3a9-6e261e6cc526",
+      "credentials": {
+        "slackApi": {
+          "id": "qDLiGCewPVHrYuia",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Detecta la solicitud enviada",
+        "height": 80,
+        "width": 352
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "d4381cad-22cf-41b6-8699-80d968dec55c",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Juez / Auditor",
+        "height": 80
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        768,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "ac33a4f0-1f83-432a-ab95-496c7474a3f5",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Juez y auditoria",
+        "width": 2272,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        -240
+      ],
+      "typeVersion": 1,
+      "id": "a1f782c3-2078-4479-a45e-45ee6b645f7c",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Entrada desde Orquestador": {
+      "main": [
+        [
+          {
+            "node": "detecta solicitud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "detecta solicitud": {
+      "main": [
+        [
+          {
+            "node": "Parsear JSON IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "detecta solicitud",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsear JSON IA": {
+      "main": [
+        [
+          {
+            "node": "AI-as-a-Judge Supervisor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI-as-a-Judge Supervisor": {
+      "main": [
+        [
+          {
+            "node": "Parsear JSON Judge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model Juez": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI-as-a-Judge Supervisor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsear JSON Judge": {
+      "main": [
+        [
+          {
+            "node": "Limpiar Payload Masivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limpiar Payload Masivo": {
+      "main": [
+        [
+          {
+            "node": "Umbral de Autonomía",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Umbral de Autonomía": {
+      "main": [
+        [
+          {
+            "node": "Preparar registro de gobernanza",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar registro de gobernanza",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar registro de gobernanza": {
+      "main": [
+        [
+          {
+            "node": "Registro de gobernanza",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Cola de Aprobación Humana",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "993fd9a9-f6cd-469e-805f-a80ce546ab49",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e3cf23be175e6380ae1e05ee5d9cd219a5993747dd2f77d08fa2f9552a78fe58"
+  },
+  "nodeGroups": [],
+  "id": "4FPOCkfzSYMat7ig",
+  "tags": []
+}

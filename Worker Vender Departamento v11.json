@@ -1,0 +1,566 @@
+{
+  "name": "Worker Vender Departamento v11",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "5ada7ac8-9ac3-4f27-9e57-2e37b46191cd",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e23ea0a1-231e-472d-ab54-a78e1c9fc305",
+              "leftValue": "={{ $json.governance.juez_aprobado }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b5a240b0-f53f-4ee1-8151-78369bea5e98",
+      "name": "¿Aprobado por AI-Judge?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        32,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1VZi2sz8app-JlnJHVHY3xucvlIWZUH8gk2L-qd6wtNc",
+          "mode": "list",
+          "cachedResultName": "Agenda",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VZi2sz8app-JlnJHVHY3xucvlIWZUH8gk2L-qd6wtNc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1526187806,
+          "mode": "list",
+          "cachedResultName": "ventas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VZi2sz8app-JlnJHVHY3xucvlIWZUH8gk2L-qd6wtNc/edit#gid=1526187806"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "dni": "={{ $json.extracted_data.DNI }}",
+            "nombre": "={{ $json.extracted_data.Nombre }}",
+            "fecha": "={{ $json.extracted_data.Fecha }}",
+            "hora": "={{ $json.extracted_data.Hora }}",
+            "presupuesto": "={{ $json.extracted_data.Presupuesto }}",
+            "intencion": "={{ $json.extracted_data.Intencion }}",
+            "traceid": "={{ $json.traceId }}",
+            "score_confianza": "={{ $json.governance.score_confianza }}",
+            "observaciones_juez": "={{ $json.governance.observaciones }}",
+            "dinero": "={{ $json.extracted_data.Dinero }}",
+            "id": "={{ $json.traceId }}"
+          },
+          "matchingColumns": [
+            "traceid"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dni",
+              "displayName": "dni",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "hora",
+              "displayName": "hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "presupuesto",
+              "displayName": "presupuesto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "intencion",
+              "displayName": "intencion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dinero",
+              "displayName": "dinero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "traceid",
+              "displayName": "traceid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "score_confianza",
+              "displayName": "score_confianza",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "observaciones_juez",
+              "displayName": "observaciones_juez",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "8206f1f1-bab7-478f-8899-c1ec36dc77d6",
+      "name": "Google Sheets: Añadir Fila Ventas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        240,
+        96
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nDEKTRXx7cPBZIFL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "email": "={{ (($( 'Execute Workflow Trigger' ).item.json.extracted_data?.Email || $( 'Execute Workflow Trigger' ).item.json.extracted_data?.email) || 'sin-email@inmobiliaria.com') }}",
+        "additionalFields": {
+          "firstName": "={{ $('Execute Workflow Trigger').item.json.extracted_data.Nombre }}",
+          "message": "=TraceID: {{ $('Execute Workflow Trigger').item.json.traceId }}"
+        },
+        "options": {}
+      },
+      "id": "661dbf30-be00-4098-a3b4-727fc4d93238",
+      "name": "HubSpot: Alta/Actualiza Contacto",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        96
+      ],
+      "credentials": {
+        "hubspotOAuth2Api": {
+          "id": "o7QwiTH9N5N4qVSB",
+          "name": "HubSpot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1bM-imhFpFa0XXkX_94FbP5dYmjhjUZAvvBJyQ-tsLv8",
+          "mode": "list",
+          "cachedResultName": "Log de rechazos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bM-imhFpFa0XXkX_94FbP5dYmjhjUZAvvBJyQ-tsLv8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "vender",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bM-imhFpFa0XXkX_94FbP5dYmjhjUZAvvBJyQ-tsLv8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "traceid": "={{ $json.traceId }}",
+            "dni": "={{ $json.extracted_data.DNI }}",
+            "nombre": "={{ $json.extracted_data.Nombre }}",
+            "fecha": "={{ $json.extracted_data.Fecha }}",
+            "hora": "={{ $json.extracted_data.Hora }}",
+            "presupuesto": "={{ $json.extracted_data.Presupuesto }}",
+            "intencion": "={{ $json.extracted_data.Intencion }}",
+            "id": "={{ $json.traceId }}",
+            "dinero": "={{ $json.extracted_data.Dinero }}",
+            "score_confianza": "={{ $json.governance.score_confianza }}",
+            "observaciones_juez": "={{ $json.governance.observaciones }}"
+          },
+          "matchingColumns": [
+            "traceid"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dni",
+              "displayName": "dni",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "hora",
+              "displayName": "hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "presupuesto",
+              "displayName": "presupuesto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "intencion",
+              "displayName": "intencion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "dinero",
+              "displayName": "dinero",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "traceid",
+              "displayName": "traceid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "score_confianza",
+              "displayName": "score_confianza",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "observaciones_juez",
+              "displayName": "observaciones_juez",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "cd10f526-8fc9-425a-91bc-1ebef62cf01a",
+      "name": "Agrega log de rechazos",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        256,
+        336
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nDEKTRXx7cPBZIFL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "U0BTKKZBK8S",
+          "mode": "list",
+          "cachedResultName": "cuenta make (@cuenta.make.ls)"
+        },
+        "text": "=Error flujo vender {{ $json.traceid ?? $('Execute Workflow Trigger').item.json.traceId }}",
+        "otherOptions": {}
+      },
+      "id": "e8016156-c327-4eb7-9600-e637e5a7a31b",
+      "name": "Informa error flujo vender",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        496,
+        336
+      ],
+      "webhookId": "62f82e7a-6fd2-4fdb-8427-efd13e1abf78",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "D32l5Y5hF7qsZV9x",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Alta de contacto en hubspot",
+        "height": 80,
+        "width": 368
+      },
+      "id": "f628d7b5-666c-4b85-807e-3a01c266164e",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Agregamos dato a la agenda",
+        "height": 80,
+        "width": 160,
+        "color": 2
+      },
+      "id": "a7626631-1e14-4930-b892-28cd7eb7220c",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Worker vender",
+        "height": 80,
+        "width": 944,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -272,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "5f627254-3953-407a-b274-d5d0bfa158ec",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Sumamos info para auditoria y gobernanza y ademas informamos al equipo",
+        "height": 80,
+        "width": 432
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        512
+      ],
+      "typeVersion": 1,
+      "id": "18bab165-9a69-49d8-9799-8d434c1a3952",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "¿Aprobado por AI-Judge?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Aprobado por AI-Judge?": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets: Añadir Fila Ventas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agrega log de rechazos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets: Añadir Fila Ventas": {
+      "main": [
+        [
+          {
+            "node": "HubSpot: Alta/Actualiza Contacto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agrega log de rechazos": {
+      "main": [
+        [
+          {
+            "node": "Informa error flujo vender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b03ee00d-6234-422b-8100-efac10a89fc6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e3cf23be175e6380ae1e05ee5d9cd219a5993747dd2f77d08fa2f9552a78fe58"
+  },
+  "nodeGroups": [],
+  "id": "wY9XAWbzaEtiEtuo",
+  "tags": []
+}
