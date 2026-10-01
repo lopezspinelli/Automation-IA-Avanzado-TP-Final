@@ -46,5 +46,5 @@ Es la imagen de uno de los worker que llama el orquestador. En particular se enc
 -Worker Ver Departamento v11.json
 
 # PDF:
-Lopez_Spinelli_Rodolfo_ProyectoFinal_AI_Experto.pdf
+Lopez_Spinelli_Rodolfo_Ruben_ProyectoFinal_AI_Experto.pdf
 Archivo que compila toda la información del proyecto final
